@@ -39,11 +39,11 @@ function Home() {
             />
             <h3>{p.name}</h3>
             <p>{p.description}</p>
-            <p><strong>${p.price}</strong></p>
+            <p><strong>{p.price} bdt</strong></p>
             <input
               type="number"
               min="1"
-              value={quantities[p.id] || 1}
+              value={quantities[p.id] || 0}
               onChange={(e) => handleQuantityChange(p.id, e.target.value)}
               style={{ width: '50px', marginRight: '10px' }}
             />
