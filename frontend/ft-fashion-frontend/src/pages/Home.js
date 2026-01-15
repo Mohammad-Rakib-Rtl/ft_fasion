@@ -39,7 +39,7 @@ function Home() {
             />
             <h3>{p.name}</h3>
             <p>{p.description}</p>
-            <p><strong>{p.price} bdt</strong></p>
+            <p><strong>{p.price} BDT</strong></p>
             <input
               type="number"
               min="1"
