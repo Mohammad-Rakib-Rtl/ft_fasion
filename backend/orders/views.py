@@ -10,8 +10,9 @@ from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, Image
 from reportlab.lib.units import inch
+import os
 
 # ---- function begins here ----
 @api_view(['POST'])
@@ -20,7 +21,8 @@ def checkout(request):
     if serializer.is_valid():
         order = serializer.save()          # ✅ order is defined here
 
-        # everything below must be indented inside this function
+        # --- inside your checkout(request) after order = serializer.save() ---
+
         buffer = BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=A4,
                                 leftMargin=50, rightMargin=50,
@@ -49,7 +51,7 @@ def checkout(request):
         ], [
             Paragraph(f"<b>Total Items:</b> {order.items.count()}", info_style)
         ]]
-        info_table = Table(info_table_data, colWidths=[480])  # same width as table
+        info_table = Table(info_table_data, colWidths=[480])
         info_table.setStyle(TableStyle([
             ("ALIGN", (0, 0), (-1, -1), "LEFT"),
             ("LEFTPADDING", (0, 0), (-1, -1), 0),
@@ -58,28 +60,66 @@ def checkout(request):
         elements.append(info_table)
         elements.append(Spacer(1, 12))
 
-        # --- Table Data ---
-        data = [["Product Name", "Quantity", "Unit Price (BDT)", "Total (BDT)"]]
+        # --- Table Header ---
+        data = [["SL", "Image", "Code", "Product Name", "Quantity", "Unit Price", "TOTAL"]]
+
+        # --- Table Content ---
         total = 0
+        serial_no = 1
+
+        # Style for product name cell (wrap text)
+        product_name_style = ParagraphStyle(
+            name="ProductName",
+            fontSize=10,
+            leading=12,
+            alignment=0,  # left align
+            wordWrap="CJK",  # ensures word wrapping works properly
+        )
+
         for item in order.items.all():
             subtotal = item.product.price * item.quantity
+
+            # Product image cell
+            image_path = item.product.image.path if item.product.image else None
+            if image_path and os.path.exists(image_path):
+                img = Image(image_path, width=0.7*inch, height=0.7*inch)
+            else:
+                img = Paragraph("-", styles["Normal"])
+
+            # Product name with word wrapping
+            product_name_text = item.product.name
+            # Optional: truncate if name is too long (e.g., >60 chars)
+            if len(product_name_text) > 60:
+                product_name_text = product_name_text[:57] + "..."
+
+            product_name = Paragraph(product_name_text, product_name_style)
+
             data.append([
-                item.product.name,
+                str(serial_no),
+                img,
+                item.product.code or "-",
+                product_name,
                 str(item.quantity),
                 f"{item.product.price:.2f}",
                 f"{subtotal:.2f}"
             ])
+
             total += subtotal
+            serial_no += 1
 
-        data.append(["", "", "Total:", f"{total:.2f} BDT"])
 
-        table = Table(data, colWidths=[200, 80, 100, 100])
+        # --- Add Total Row ---
+        data.append(["", "", "", "", "", "Total:", f"{total:.2f} BDT"])
+
+        # --- Table Style ---
+        table = Table(data, colWidths=[30, 60, 60, 150, 40, 80, 80])
         table_style = TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#ff6600")),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
             ("ALIGN", (0, 0), (-1, -1), "CENTER"),
             ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
             ("BACKGROUND", (0, 1), (-1, -2), colors.whitesmoke),
             ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#f9f9f9")),
             ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
