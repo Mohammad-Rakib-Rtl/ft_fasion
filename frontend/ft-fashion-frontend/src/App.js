@@ -12,14 +12,17 @@ function Navbar() {
     <div style={{
       display: 'flex',
       justifyContent: 'space-between',
-      padding: '10px 20px',
+      padding: '20px 40px',
       backgroundColor: '#ff6600',
       color: 'white'
     }}>
-      <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>🛍️ Ft Fashion</Link>
-      <Link to="/cart" style={{ textDecoration: 'none', color: 'white' }}>
-        🛒 Cart ({count})
-      </Link>
+      <Link to="/" style={{ textDecoration: 'none', color: 'white', fontSize: '1.5rem', fontWeight: 'bold' }}>
+  🛍️ Ft Fashion
+</Link>
+
+<Link to="/cart" style={{ textDecoration: 'none', color: 'white', fontSize: '1.25rem' }}>
+  🛒 Cart <span style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>({count})</span>
+</Link>
     </div>
   );
 }

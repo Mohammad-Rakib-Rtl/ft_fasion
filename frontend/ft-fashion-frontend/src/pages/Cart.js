@@ -67,8 +67,8 @@ function Cart() {
                 <tr key={item.id}>
                   <td>{item.name}</td>
                   <td>{item.quantity}</td>
-                  <td>${item.price}</td>
-                  <td>${(item.price * item.quantity).toFixed(2)}</td>
+                  <td>{item.price} BDT</td>
+                  <td>{(item.price * item.quantity).toFixed()} BDT</td>
                   <td>
                     <button onClick={() => removeFromCart(item.id)}>❌</button>
                   </td>
@@ -77,7 +77,7 @@ function Cart() {
             </tbody>
           </table>
 
-          <h3 style={{ marginTop: '15px' }}>Total: ${total.toFixed(2)}</h3>
+          <h3 style={{ marginTop: '15px' }}>Total: {total.toFixed(2)} BDT</h3>
 
           {/* 🧩 3️⃣ ADD CHECKOUT BUTTON HERE — below total */}
           <button

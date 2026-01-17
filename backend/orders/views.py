@@ -38,7 +38,7 @@ def checkout(request):
             fontName="Helvetica-Bold"
         )
         elements.append(Paragraph("FT FASHION INVOICE", title_style))
-        elements.append(Spacer(1, 30))
+        elements.append(Spacer(1, 10))
 
         # --- Order Info ---
         info_style = ParagraphStyle(name='Info', fontSize=11, leading=15, leftIndent=0)
