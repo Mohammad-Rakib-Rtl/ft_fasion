@@ -5,7 +5,7 @@ from products.models import Product
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ['product', 'quantity']
+        fields = ['product', 'quantity', 'size']  # include 'size' field
 
 class CheckoutSerializer(serializers.Serializer):
     customer_email = serializers.EmailField()

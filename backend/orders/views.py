@@ -61,7 +61,7 @@ def checkout(request):
         elements.append(Spacer(1, 12))
 
         # --- Table Header ---
-        data = [["SL", "Image", "Code", "Product Name", "Quantity", "Unit Price", "TOTAL"]]
+        data = [["SL", "Image", "Code", "Product Name", "Size", "Quantity", "Unit Price", "TOTAL"]]
 
         # --- Table Content ---
         total = 0
@@ -99,6 +99,7 @@ def checkout(request):
                 img,
                 item.product.code or "-",
                 product_name,
+                item.size or "-",
                 str(item.quantity),
                 f"{item.product.price:.2f}",
                 f"{subtotal:.2f}"
@@ -109,10 +110,10 @@ def checkout(request):
 
 
         # --- Add Total Row ---
-        data.append(["", "", "", "", "", "Total:", f"{total:.2f} BDT"])
+        data.append(["", "", "", "", "", "", "Total:", f"{total:.2f} BDT"])
 
         # --- Table Style ---
-        table = Table(data, colWidths=[30, 60, 60, 150, 40, 80, 80])
+        table = Table(data, colWidths=[30, 60, 60, 150, 40, 40, 80, 80])
         table_style = TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#ff6600")),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
@@ -132,12 +133,11 @@ def checkout(request):
         pdf_bytes = buffer.getvalue()
         buffer.close()
 
-        # Email and response
         email = EmailMessage(
-            subject=f"New Order Invoice #{order.code}",
-            body="Please find attached the new client invoice.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=["jwdjp.abc@gmail.com"],
+        subject=f"New Order Invoice #{order.code}",
+        body="Please find attached the new client invoice.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=["jwdjp.abc@gmail.com"],
         )
         email.attach(f"invoice_{order.code}.pdf", pdf_bytes, "application/pdf")
         email.send(fail_silently=True)
@@ -147,5 +147,6 @@ def checkout(request):
             "order_code": str(order.code),
             "pdf": pdf_bytes.hex()
         }, status=status.HTTP_201_CREATED)
+
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
